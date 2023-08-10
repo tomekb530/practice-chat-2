@@ -28,7 +28,7 @@
     import router from '@/router';
     import { useToast } from "primevue/usetoast";
     import { signInWithEmailAndPassword } from '@/backend';
-    import { socket } from '@/backend';
+    import { socket, API_URL } from '@/backend';
     const toast = useToast();
     const email = ref('');
     const password = ref('');
@@ -40,19 +40,21 @@
         googleLoad.value = true;
         errorMessage.value = '';
         const popup = await window.open('http://localhost:2137/auth/google',"Google Login","width=500,height=500");
-        popup.onmessage = (event) => {
-            console.log(event)
-            if(event.data && event.data.token){
-                localStorage.setItem('token', event.data.token);
-                socket.disconnect();
-                socket.connect();
-                router.push({name:'home'});
-                toast.add({
-                    severity: "success",
-                    summary: "Login successful",
-                    detail: "Welcome back!",
-                    life: 3000,
-                });
+        window.onmessage = (event) => {
+            if(event.data && event.origin === API_URL){
+                const data = JSON.parse(event.data);
+                if(data && data.token){
+                    localStorage.setItem('token', data.token);
+                    socket.disconnect();
+                    socket.connect();
+                    router.push({name:'home'});
+                    toast.add({
+                        severity: "success",
+                        summary: "Login successful",
+                        detail: "Welcome back!",
+                        life: 3000,
+                    });
+                }
             }
         }
     }

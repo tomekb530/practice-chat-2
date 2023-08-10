@@ -78,7 +78,7 @@ app.post('/register', async (req, res) => {
 app.get('/google', (req, res) => {
     const stringifiedParams = queryString.stringify({
         client_id: config.GOOGLE_CLIENTID,
-        redirect_uri: 'http://localhost:2137/auth/google/callback',
+        redirect_uri: config.URL_BASE + '/auth/google/callback',
         scope: [
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
@@ -93,7 +93,7 @@ app.get('/google/callback', async (req, res) => {
     const auth = new GoogleAuth.OAuth2Client({
         clientId: config.GOOGLE_CLIENTID,
         clientSecret: config.GOOGLE_SECRET,
-        redirectUri: 'http://localhost:2137/auth/google/callback',
+        redirectUri: config.URL_BASE + '/auth/google/callback',
     });
     let data;
     let email;
@@ -120,7 +120,7 @@ app.get('/google/callback', async (req, res) => {
                 const findUser = await db.models.User.findOne({ email });
                 if(findUser){
                     const token = jsonwebtoken.sign({ name: findUser.username }, config.JWT_SECRET);
-                    res.send(`<script>window.opener.postMessage('${token}', '*');</script>`);
+                    res.send(`<script>window.opener.postMessage('${JSON.stringify({token})}','*'); window.close();</script>`);
                 }else{
                     const userDb = await new db.models.User({
                         id: Date.now().toString(),
@@ -137,7 +137,7 @@ app.get('/google/callback', async (req, res) => {
                             res.status(500).json({ message: "Internal server error" });
                         }else{
                             const token = jsonwebtoken.sign({ name: user.username }, config.JWT_SECRET);
-                            res.send(`<script>window.opener.postMessage('${token}', '*');</script>`);
+                            res.send(`<script>window.opener.postMessage('${JSON.stringify({token})}','*'); window.close();</script>`);
                         }
                     });
                 }

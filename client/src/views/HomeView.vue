@@ -103,13 +103,14 @@ import { socket } from '@/backend';
     messagesData.value = messagesT.data.messages;
     setTimeout(()=>{
       messages.value.scrollTop = messages.value.scrollHeight;
-    },10);
+    },50);
     socket.on("message", (message: Message) => {
       if(message.channel === channelSettings.value.id){
         messagesData.value.push(message);
         setTimeout(()=>{
+          const height = messages.value.scrollHeight;
           messages.value.scrollTop = messages.value.scrollHeight;
-        },10);
+        },50);
       }
     });
   }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { io } from "socket.io-client";
-const API_URL = 'http://localhost:2137';
+export const API_URL = 'http://localhost:2137';
 export const socket = io(API_URL);
 
 async function get(url: string) {
